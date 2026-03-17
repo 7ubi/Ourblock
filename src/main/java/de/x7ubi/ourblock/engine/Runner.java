@@ -38,10 +38,16 @@ public class Runner {
 
         glClearColor(0.2f, 0.3f, 0.8f, 0.0f);
 
+        double lastTime = glfwGetTime();
+
         while (!glfwWindowShouldClose(Window.getInstance().getWindow())) {
+            double now = glfwGetTime();
+            double deltaTime = now - lastTime;
+            lastTime = now;
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            renderer.render();
+            renderer.render(deltaTime);
 
             glfwSwapBuffers(Window.getInstance().getWindow());
 

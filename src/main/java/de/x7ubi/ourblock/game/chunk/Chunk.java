@@ -42,11 +42,13 @@ public class Chunk {
             for (int z = 0; z < CHUNK_SIZE; z++) {
                 double noiseValue = noiseGenerator.evaluateNoise((position.x + x) * frequency, (position.z + z) * frequency);
                 noiseValue = (noiseValue + 1) / 2;
+                int dirtHeight = (int) (MIN_CHUNK_HEIGHT + noiseValue * (MAX_GENERATION_HEIGHT - MIN_CHUNK_HEIGHT));
                 for (int y = 0; y < MAX_CHUNK_HEIGHT; y++) {
                     int index = getBlockIndex(x, y, z);
 
-                    if (y < MIN_CHUNK_HEIGHT + noiseValue * (MAX_GENERATION_HEIGHT - MIN_CHUNK_HEIGHT)) {
-                        blocks[index] = 1;
+                    if (y < dirtHeight) {
+                        blocks[index] = y < dirtHeight - 4 ? (byte) 2 : 1;
+
                     } else {
                         blocks[index] = 0;
                     }

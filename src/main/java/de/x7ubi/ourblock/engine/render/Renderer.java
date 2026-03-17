@@ -12,11 +12,11 @@ public class Renderer {
         TextureLoader.getInstance().loadAllTextures();
     }
 
-    public void render() {
+    public void render(double deltaTime) {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        Controller.getInstance().update();
+        Controller.getInstance().update(deltaTime);
         ChunkGeneration.getInstance().render();
     }
 
