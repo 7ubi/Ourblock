@@ -8,7 +8,7 @@ import org.joml.Vector3d;
 
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.glTranslated;
+import static org.lwjgl.opengl.GL11.*;
 
 @Getter
 public class Chunk {
@@ -58,7 +58,9 @@ public class Chunk {
     }
 
     public void render() {
-        glTranslated(position.x, position.y, position.z);
+
+        glPushMatrix();
+        glTranslated(position.x, 0, position.z);
 
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < MAX_CHUNK_HEIGHT; y++) {
@@ -66,12 +68,14 @@ public class Chunk {
                     byte block = blocks[getBlockIndex(x, y, z)];
                     if (block != 0) {
                         List<Faces> facesToDraw = getFacesToDraw(x, y, z);
-
-                        BlockDictionary.getBlockById(block).render(new Vector3d(x, y, z), facesToDraw);
+                        if (!facesToDraw.isEmpty()) {
+                            BlockDictionary.getBlockById(block).render(new Vector3d(x, y, z), facesToDraw);
+                        }
                     }
                 }
             }
         }
+        glPopMatrix();
     }
 
     private List<Faces> getFacesToDraw(int x, int y, int z) {

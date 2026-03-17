@@ -25,7 +25,11 @@ public class ChunkGeneration {
     }
 
     public void initialize() {
-        chunks.add(new Chunk(new Vector3d(0, 0, 0), noiseGenerator));
+        for (int x = 0; x < 4; x++) {
+            for (int z = 0; z < 4; z++) {
+                chunks.add(new Chunk(new Vector3d(x * Chunk.CHUNK_SIZE, 0, z * Chunk.CHUNK_SIZE), noiseGenerator));
+            }
+        }
     }
 
     public void render() {

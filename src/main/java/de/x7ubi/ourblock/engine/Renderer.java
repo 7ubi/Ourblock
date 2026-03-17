@@ -1,4 +1,4 @@
-package de.x7ubi.ourblock.engine.render;
+package de.x7ubi.ourblock.engine;
 
 import de.x7ubi.ourblock.game.chunk.ChunkGeneration;
 import de.x7ubi.ourblock.game.controller.Controller;
