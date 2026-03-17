@@ -15,6 +15,7 @@
         <lwjgl.version>3.4.1</lwjgl.version>
         <lombok.version>1.18.44</lombok.version>
         <joml.version>1.10.8</joml.version>
+        <jnoise.version>4.1.0</jnoise.version>
     </properties>
 
     <profiles>
@@ -135,6 +136,16 @@
             <artifactId>joml</artifactId>
             <version>${joml.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.articdive</groupId>
+            <artifactId>jnoise-core</artifactId>
+            <version>${jnoise.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.articdive</groupId>
+            <artifactId>jnoise-generators</artifactId>
+            <version>${jnoise.version}</version>
         </dependency>
     </dependencies>
 </project>

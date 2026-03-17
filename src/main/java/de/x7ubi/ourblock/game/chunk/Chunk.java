@@ -1,5 +1,6 @@
 package de.x7ubi.ourblock.game.chunk;
 
+import de.articdive.jnoise.core.api.noisegen.NoiseGenerator;
 import de.x7ubi.ourblock.game.block.BlockDictionary;
 import de.x7ubi.ourblock.game.block.Faces;
 import lombok.Getter;
@@ -14,26 +15,38 @@ public class Chunk {
 
     public static final int CHUNK_SIZE = 16;
 
+    public static final int MAX_CHUNK_HEIGHT = 256;
+
+    private static final int MAX_GENERATION_HEIGHT = 80;
+
+    private static final int MIN_CHUNK_HEIGHT = 60;
+
+    private static final double frequency = 0.05;
+
+    private final byte[] blocks = new byte[CHUNK_SIZE * CHUNK_SIZE * MAX_CHUNK_HEIGHT];
+
     private final Vector3d position;
 
-    private byte[] blocks = new byte[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
+    private final NoiseGenerator noiseGenerator;
 
-    public Chunk(Vector3d position) {
+    public Chunk(Vector3d position, NoiseGenerator noiseGenerator) {
         this.position = position;
+        this.noiseGenerator = noiseGenerator;
 
         generateBlocks();
     }
 
     private void generateBlocks() {
+
         for (int x = 0; x < CHUNK_SIZE; x++) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                for (int z = 0; z < CHUNK_SIZE; z++) {
-                    int index = x + CHUNK_SIZE * (y + CHUNK_SIZE * z);
-                    if (y < CHUNK_SIZE / 2) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                double noiseValue = noiseGenerator.evaluateNoise((position.x + x) * frequency, (position.z + z) * frequency);
+                noiseValue = (noiseValue + 1) / 2;
+                for (int y = 0; y < MAX_CHUNK_HEIGHT; y++) {
+                    int index = getBlockIndex(x, y, z);
+
+                    if (y < MIN_CHUNK_HEIGHT + noiseValue * (MAX_GENERATION_HEIGHT - MIN_CHUNK_HEIGHT)) {
                         blocks[index] = 1;
-                        if (y < CHUNK_SIZE / 4) {
-                            blocks[index] = 2;
-                        }
                     } else {
                         blocks[index] = 0;
                     }
@@ -46,13 +59,13 @@ public class Chunk {
         glTranslated(position.x, position.y, position.z);
 
         for (int x = 0; x < CHUNK_SIZE; x++) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
+            for (int y = 0; y < MAX_CHUNK_HEIGHT; y++) {
                 for (int z = 0; z < CHUNK_SIZE; z++) {
-                    int index = x + CHUNK_SIZE * (y + CHUNK_SIZE * z);
-                    if (blocks[index] != 0) {
+                    byte block = blocks[getBlockIndex(x, y, z)];
+                    if (block != 0) {
                         List<Faces> facesToDraw = getFacesToDraw(x, y, z);
 
-                        BlockDictionary.getBlockById(blocks[index]).render(new Vector3d(x, y, z), facesToDraw);
+                        BlockDictionary.getBlockById(block).render(new Vector3d(x, y, z), facesToDraw);
                     }
                 }
             }
@@ -62,25 +75,29 @@ public class Chunk {
     private List<Faces> getFacesToDraw(int x, int y, int z) {
         List<Faces> facesToDraw = new java.util.ArrayList<>();
 
-        if (y == 0 || blocks[x + CHUNK_SIZE * ((y - 1) + CHUNK_SIZE * z)] == 0) {
+        if (y == 0 || blocks[getBlockIndex(x, y - 1, z)] == 0) {
             facesToDraw.add(Faces.BOTTOM);
         }
-        if (y == CHUNK_SIZE - 1 || blocks[x + CHUNK_SIZE * ((y + 1) + CHUNK_SIZE * z)] == 0) {
+        if (y == MAX_CHUNK_HEIGHT - 1 || blocks[getBlockIndex(x, y + 1, z)] == 0) {
             facesToDraw.add(Faces.TOP);
         }
-        if (x == 0 || blocks[(x - 1) + CHUNK_SIZE * (y + CHUNK_SIZE * z)] == 0) {
+        if (x == 0 || blocks[getBlockIndex(x - 1, y, z)] == 0) {
             facesToDraw.add(Faces.LEFT);
         }
-        if (x == CHUNK_SIZE - 1 || blocks[(x + 1) + CHUNK_SIZE * (y + CHUNK_SIZE * z)] == 0) {
+        if (x == CHUNK_SIZE - 1 || blocks[getBlockIndex(x + 1, y, z)] == 0) {
             facesToDraw.add(Faces.RIGHT);
         }
-        if (z == CHUNK_SIZE - 1 || blocks[x + CHUNK_SIZE * (y + CHUNK_SIZE * (z + 1))] == 0) {
+        if (z == CHUNK_SIZE - 1 || blocks[getBlockIndex(x, y, z + 1)] == 0) {
             facesToDraw.add(Faces.FRONT);
         }
-        if (z == 0 || blocks[x + CHUNK_SIZE * (y + CHUNK_SIZE * (z - 1))] == 0) {
+        if (z == 0 || blocks[getBlockIndex(x, y, z - 1)] == 0) {
             facesToDraw.add(Faces.BACK);
         }
 
         return facesToDraw;
+    }
+
+    private int getBlockIndex(int x, int y, int z) {
+        return (z * CHUNK_SIZE * MAX_CHUNK_HEIGHT) + (y * CHUNK_SIZE) + x;
     }
 }

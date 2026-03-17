@@ -2,18 +2,14 @@ package de.x7ubi.ourblock.engine;
 
 import de.x7ubi.ourblock.engine.render.Renderer;
 import de.x7ubi.ourblock.game.controller.Controller;
-import org.lwjgl.opengl.GL;
 
 import java.util.Objects;
-import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Runner {
-
-    private static final Logger logger = Logger.getLogger(Runner.class.getName());
 
     Renderer renderer;
 
@@ -37,12 +33,6 @@ public class Runner {
 
 
     private void loop() {
-        GL.createCapabilities();
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_CULL_FACE);
-
         renderer.initialize();
         Controller.getInstance().initialize();
 

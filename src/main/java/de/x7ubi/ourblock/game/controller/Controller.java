@@ -17,7 +17,7 @@ public class Controller {
     private static final double MOVEMENT_SPEED = 0.1f;
 
     @Getter
-    private static Controller instance = new Controller();
+    private static final Controller instance = new Controller();
 
     private double yaw = 0f;
 
@@ -25,7 +25,7 @@ public class Controller {
 
     private Vector2d lastMousePosition;
 
-    private Vector3d position = new Vector3d(0, 16, 0);
+    private final Vector3d position = new Vector3d(0, 70, 0);
 
     private boolean moveForward = false;
     private boolean moveBackward = false;

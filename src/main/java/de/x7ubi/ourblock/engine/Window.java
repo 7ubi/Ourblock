@@ -1,7 +1,6 @@
 package de.x7ubi.ourblock.engine;
 
 import lombok.Getter;
-import org.joml.Vector2d;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -19,7 +18,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
     @Getter
-    private static Window instance = new Window();
+    private static final Window instance = new Window();
 
     private long window;
 
@@ -44,22 +43,18 @@ public class Window {
         glfwWindowHint(GLFW_BLUE_BITS, vidmode.blueBits());
         glfwWindowHint(GLFW_REFRESH_RATE, vidmode.refreshRate());
 
-        window = glfwCreateWindow(vidmode.width(), vidmode.height(), "Ourcraft", glfwGetPrimaryMonitor(), NULL);
+        window = glfwCreateWindow(vidmode.width(), vidmode.height(), "Ourblock", glfwGetPrimaryMonitor(), NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
-        // For fullscreen, positioning is unnecessary (can remove), but harmless:
         glfwSetWindowPos(window, 0, 0);
 
-        // Make the OpenGL context current BEFORE any GL calls
         glfwMakeContextCurrent(window);
 
-        // Create OpenGL capabilities (required in LWJGL)
         GL.createCapabilities();
 
         glfwSwapInterval(1);
 
-        // Set initial viewport using framebuffer size
         try (MemoryStack stack = stackPush()) {
             IntBuffer fbw = stack.mallocInt(1);
             IntBuffer fbh = stack.mallocInt(1);
@@ -69,13 +64,15 @@ public class Window {
             updateProjection(fbw.get(0), fbh.get(0));
         }
 
-        // Keep viewport in sync on resize / DPI changes
         glfwSetFramebufferSizeCallback(window, (win, width, height) -> {
             glViewport(0, 0, width, height);
             updateProjection(width, height);
         });
 
         glfwShowWindow(window);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_CULL_FACE);
     }
 
     private void updateProjection(int fbWidth, int fbHeight) {
@@ -97,14 +94,5 @@ public class Window {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-    }
-
-    public Vector2d getWindowSize() {
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1);
-            IntBuffer pHeight = stack.mallocInt(1);
-            glfwGetWindowSize(window, pWidth, pHeight);
-            return new Vector2d(pWidth.get(0), pHeight.get(0));
-        }
     }
 }
