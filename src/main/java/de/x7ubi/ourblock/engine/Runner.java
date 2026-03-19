@@ -1,6 +1,7 @@
 package de.x7ubi.ourblock.engine;
 
 import de.x7ubi.ourblock.game.controller.Controller;
+import de.x7ubi.ourblock.game.texture.TextureLoader;
 
 import java.util.Objects;
 
@@ -46,8 +47,10 @@ public class Runner {
 
             System.out.println("FPS: " + (1.0 / deltaTime));
 
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            TextureLoader.getInstance().getTextureAtlas().bind();
             renderer.render(deltaTime);
 
             glfwSwapBuffers(Window.getInstance().getWindow());

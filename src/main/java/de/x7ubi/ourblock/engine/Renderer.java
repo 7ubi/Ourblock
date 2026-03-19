@@ -9,7 +9,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class Renderer {
 
     public void initialize() {
-        TextureLoader.getInstance().loadAllTextures();
+        TextureLoader.getInstance().loadTextureAtlas();
     }
 
     public void render(double deltaTime) {

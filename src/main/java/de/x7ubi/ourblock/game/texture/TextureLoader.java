@@ -1,42 +1,37 @@
 package de.x7ubi.ourblock.game.texture;
 
 import lombok.Getter;
+import org.joml.Vector2d;
 
-import java.io.File;
 import java.util.HashMap;
 
 public class TextureLoader {
 
-    private final HashMap<String, Texture> textures = new HashMap<>();
-
     @Getter
     private static final TextureLoader instance = new TextureLoader();
+
+    public static final double UV_SIZE = 0.5;
+
+    @Getter
+    private Texture textureAtlas;
+
+    private final HashMap<String, TextureUVRecord> textureUVRecords = new HashMap<>();
 
     private TextureLoader() {
     }
 
-    public void loadAllTextures() {
-        File dir = new File("src/main/resources/textures");
-        File[] pngFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".png"));
+    public void loadTextureAtlas() {
+        textureAtlas = new Texture("textures/textureatlas.png");
 
-        if (pngFiles != null) {
-            for (File file : pngFiles) {
-                String name = file.getName().substring(0, file.getName().length() - 4);
-                Texture texture = new Texture("textures/" + file.getName());
-                textures.put(name, texture);
-                texture.bind();
-            }
-        }
+        textureUVRecords.put("dirt", new TextureUVRecord(new Vector2d(0.0, 0.5)));
+        textureUVRecords.put("cobble", new TextureUVRecord(new Vector2d(0.5, 0.5)));
     }
 
-
-    public Texture getTexture(String name) {
-        return textures.get(name);
+    public TextureUVRecord getTextureUV(String name) {
+        return textureUVRecords.get(name);
     }
 
     public void cleanup() {
-        for (Texture texture : textures.values()) {
-            texture.cleanup();
-        }
+        textureAtlas.cleanup();
     }
 }
