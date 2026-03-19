@@ -23,7 +23,13 @@ public class Chunk {
 
     private static final double frequency = 0.05;
 
+    @Getter
     private final byte[] blocks = new byte[CHUNK_SIZE * CHUNK_SIZE * MAX_CHUNK_HEIGHT];
+
+    @Getter
+    private final byte[] visibleFacesCache = new byte[CHUNK_SIZE * CHUNK_SIZE * MAX_CHUNK_HEIGHT];
+
+    private boolean needsFaceCacheUpdate = true;
 
     private final Vector3d position;
 
@@ -57,7 +63,7 @@ public class Chunk {
         }
     }
 
-    public void render() {
+    public void render(Chunk neighborXPos, Chunk neighborXNeg, Chunk neighborZPos, Chunk neighborZNeg) {
 
         glPushMatrix();
         glTranslated(position.x, 0, position.z);
@@ -67,7 +73,16 @@ public class Chunk {
                 for (int z = 0; z < CHUNK_SIZE; z++) {
                     byte block = blocks[getBlockIndex(x, y, z)];
                     if (block != 0) {
-                        List<Faces> facesToDraw = getFacesToDraw(x, y, z);
+                        List<Faces> facesToDraw = getFacesToDraw(x, y, z, neighborXPos, neighborXNeg, neighborZPos, neighborZNeg);
+
+                        if (needsFaceCacheUpdate) {
+                            byte visibleFaces = 0;
+                            for (Faces face : facesToDraw) {
+                                visibleFaces |= (byte) (1 << face.ordinal());
+                            }
+                            visibleFacesCache[getBlockIndex(x, y, z)] = visibleFaces;
+                        }
+
                         if (!facesToDraw.isEmpty()) {
                             BlockDictionary.getBlockById(block).render(new Vector3d(x, y, z), facesToDraw);
                         }
@@ -75,11 +90,25 @@ public class Chunk {
                 }
             }
         }
+        if (needsFaceCacheUpdate) {
+            needsFaceCacheUpdate = false;
+        }
+
         glPopMatrix();
     }
 
-    private List<Faces> getFacesToDraw(int x, int y, int z) {
+    private List<Faces> getFacesToDraw(int x, int y, int z, Chunk neighborXPos, Chunk neighborXNeg, Chunk neighborZPos, Chunk neighborZNeg) {
         List<Faces> facesToDraw = new java.util.ArrayList<>();
+
+        if (!needsFaceCacheUpdate) {
+            byte cachedValue = visibleFacesCache[getBlockIndex(x, y, z)];
+            for (Faces face : Faces.values()) {
+                if ((cachedValue & (1 << face.ordinal())) != 0) {
+                    facesToDraw.add(face);
+                }
+            }
+            return facesToDraw;
+        }
 
         if (y == 0 || blocks[getBlockIndex(x, y - 1, z)] == 0) {
             facesToDraw.add(Faces.BOTTOM);
@@ -87,16 +116,36 @@ public class Chunk {
         if (y == MAX_CHUNK_HEIGHT - 1 || blocks[getBlockIndex(x, y + 1, z)] == 0) {
             facesToDraw.add(Faces.TOP);
         }
-        if (x == 0 || blocks[getBlockIndex(x - 1, y, z)] == 0) {
+
+        if (x == 0) {
+            if (neighborXNeg == null || neighborXNeg.blocks[getBlockIndex(CHUNK_SIZE - 1, y, z)] == 0) {
+                facesToDraw.add(Faces.LEFT);
+            }
+        } else if (blocks[getBlockIndex(x - 1, y, z)] == 0) {
             facesToDraw.add(Faces.LEFT);
         }
-        if (x == CHUNK_SIZE - 1 || blocks[getBlockIndex(x + 1, y, z)] == 0) {
+
+        if (x == CHUNK_SIZE - 1) {
+            if (neighborXPos == null || neighborXPos.blocks[getBlockIndex(0, y, z)] == 0) {
+                facesToDraw.add(Faces.RIGHT);
+            }
+        } else if (blocks[getBlockIndex(x + 1, y, z)] == 0) {
             facesToDraw.add(Faces.RIGHT);
         }
-        if (z == CHUNK_SIZE - 1 || blocks[getBlockIndex(x, y, z + 1)] == 0) {
+
+        if (z == CHUNK_SIZE - 1) {
+            if (neighborZPos == null || neighborZPos.blocks[getBlockIndex(x, y, 0)] == 0) {
+                facesToDraw.add(Faces.FRONT);
+            }
+        } else if (blocks[getBlockIndex(x, y, z + 1)] == 0) {
             facesToDraw.add(Faces.FRONT);
         }
-        if (z == 0 || blocks[getBlockIndex(x, y, z - 1)] == 0) {
+
+        if (z == 0) {
+            if (neighborZNeg == null || neighborZNeg.blocks[getBlockIndex(x, y, CHUNK_SIZE - 1)] == 0) {
+                facesToDraw.add(Faces.BACK);
+            }
+        } else if (blocks[getBlockIndex(x, y, z - 1)] == 0) {
             facesToDraw.add(Faces.BACK);
         }
 

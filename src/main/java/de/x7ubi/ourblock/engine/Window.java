@@ -86,7 +86,7 @@ public class Window {
         glLoadIdentity();
 
         float near = 0.1f;
-        float far = 100.0f;
+        float far = 200.0f;
 
         float top = 0.05625f;
         float bottom = -top;
