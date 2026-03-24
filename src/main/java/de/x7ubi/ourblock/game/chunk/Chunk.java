@@ -1,14 +1,15 @@
 package de.x7ubi.ourblock.game.chunk;
 
 import de.articdive.jnoise.core.api.noisegen.NoiseGenerator;
+import de.x7ubi.ourblock.engine.ShaderProgram;
 import de.x7ubi.ourblock.game.block.BlockDictionary;
 import de.x7ubi.ourblock.game.block.Faces;
+import de.x7ubi.ourblock.game.block.MeshData;
 import lombok.Getter;
+import org.joml.Matrix4f;
 import org.joml.Vector3d;
 
 import java.util.List;
-
-import static org.lwjgl.opengl.GL11.*;
 
 @Getter
 public class Chunk {
@@ -26,14 +27,13 @@ public class Chunk {
     @Getter
     private final byte[] blocks = new byte[CHUNK_SIZE * CHUNK_SIZE * MAX_CHUNK_HEIGHT];
 
-    @Getter
-    private final byte[] visibleFacesCache = new byte[CHUNK_SIZE * CHUNK_SIZE * MAX_CHUNK_HEIGHT];
-
-    private boolean needsFaceCacheUpdate = true;
-
     private final Vector3d position;
 
     private final NoiseGenerator noiseGenerator;
+
+    private final MeshData meshData = new MeshData();
+
+    private final ChunkMesh chunkMesh = new ChunkMesh();
 
     public Chunk(Vector3d position, NoiseGenerator noiseGenerator) {
         this.position = position;
@@ -63,11 +63,7 @@ public class Chunk {
         }
     }
 
-    public void render(Chunk neighborXPos, Chunk neighborXNeg, Chunk neighborZPos, Chunk neighborZNeg) {
-
-        glPushMatrix();
-        glTranslated(position.x, 0, position.z);
-
+    public void generateMeshData(Chunk neighborXPos, Chunk neighborXNeg, Chunk neighborZPos, Chunk neighborZNeg) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < MAX_CHUNK_HEIGHT; y++) {
                 for (int z = 0; z < CHUNK_SIZE; z++) {
@@ -75,40 +71,26 @@ public class Chunk {
                     if (block != 0) {
                         List<Faces> facesToDraw = getFacesToDraw(x, y, z, neighborXPos, neighborXNeg, neighborZPos, neighborZNeg);
 
-                        if (needsFaceCacheUpdate) {
-                            byte visibleFaces = 0;
-                            for (Faces face : facesToDraw) {
-                                visibleFaces |= (byte) (1 << face.ordinal());
-                            }
-                            visibleFacesCache[getBlockIndex(x, y, z)] = visibleFaces;
-                        }
-
                         if (!facesToDraw.isEmpty()) {
-                            BlockDictionary.getBlockById(block).render(new Vector3d(x, y, z), facesToDraw);
+                            Vector3d relativePos = new Vector3d(x, y, z).add(position);
+                            BlockDictionary.getBlockById(block).generateMeshData(relativePos, facesToDraw, meshData);
                         }
                     }
                 }
             }
         }
-        if (needsFaceCacheUpdate) {
-            needsFaceCacheUpdate = false;
-        }
 
-        glPopMatrix();
+
+        chunkMesh.upload(meshData.getVerticesAsFloatBuffer(), meshData.getIndicesAsIntBuffer());
+    }
+
+    public void render(ShaderProgram shaderProgram) {
+        shaderProgram.setMat4("uModel", new Matrix4f().identity());
+        chunkMesh.draw();
     }
 
     private List<Faces> getFacesToDraw(int x, int y, int z, Chunk neighborXPos, Chunk neighborXNeg, Chunk neighborZPos, Chunk neighborZNeg) {
         List<Faces> facesToDraw = new java.util.ArrayList<>();
-
-        if (!needsFaceCacheUpdate) {
-            byte cachedValue = visibleFacesCache[getBlockIndex(x, y, z)];
-            for (Faces face : Faces.values()) {
-                if ((cachedValue & (1 << face.ordinal())) != 0) {
-                    facesToDraw.add(face);
-                }
-            }
-            return facesToDraw;
-        }
 
         if (y == 0 || blocks[getBlockIndex(x, y - 1, z)] == 0) {
             facesToDraw.add(Faces.BOTTOM);
@@ -154,5 +136,14 @@ public class Chunk {
 
     private int getBlockIndex(int x, int y, int z) {
         return (z * CHUNK_SIZE * MAX_CHUNK_HEIGHT) + (y * CHUNK_SIZE) + x;
+    }
+
+    public void clearMeshData() {
+        meshData.getVertices().clear();
+        meshData.getIndices().clear();
+    }
+
+    public void cleanup() {
+        chunkMesh.cleanup();
     }
 }

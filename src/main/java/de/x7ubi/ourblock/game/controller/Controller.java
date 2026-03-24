@@ -2,12 +2,11 @@ package de.x7ubi.ourblock.game.controller;
 
 import de.x7ubi.ourblock.engine.Window;
 import lombok.Getter;
+import org.joml.Matrix4f;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.glRotated;
-import static org.lwjgl.opengl.GL11.glTranslated;
 
 @Getter
 public class Controller {
@@ -98,10 +97,15 @@ public class Controller {
     }
 
     public void update(double deltaTime) {
-        glRotated(pitch, 1, 0, 0);
-        glRotated(yaw, 0, 1, 0);
-
         move(deltaTime);
+    }
+
+    public Matrix4f getViewMatrix() {
+        Matrix4f view = new Matrix4f();
+        view.rotate((float) Math.toRadians(pitch), 1f, 0f, 0f);
+        view.rotate((float) Math.toRadians(yaw), 0f, 1f, 0f);
+        view.translate((float) position.x, (float) -position.y, (float) position.z);
+        return view;
     }
 
     private void move(double deltaTime) {
@@ -131,7 +135,5 @@ public class Controller {
         if (moveDown) {
             position.y -= actualMovementSpeed;
         }
-
-        glTranslated(position.x, -position.y, position.z);
     }
 }

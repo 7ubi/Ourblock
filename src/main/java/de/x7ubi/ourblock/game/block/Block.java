@@ -1,12 +1,10 @@
 package de.x7ubi.ourblock.game.block;
 
 import de.x7ubi.ourblock.game.texture.TextureUVRecord;
-import org.joml.Vector2d;
 import org.joml.Vector3d;
 
+import java.util.Arrays;
 import java.util.List;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public abstract class Block {
 
@@ -16,74 +14,95 @@ public abstract class Block {
         this.textureUVRecord = textureUVRecord;
     }
 
-    public void render(Vector3d position, List<Faces> facesToDraw) {
-
-        glPushMatrix();
-
-        glTranslated(position.x, position.y, position.z);
-
-        glBegin(GL_TRIANGLES);
-        renderFrontFace(facesToDraw);
-        renderBackFace(facesToDraw);
-        renderLeftFace(facesToDraw);
-        renderRightFace(facesToDraw);
-        renderTopFace(facesToDraw);
-        renderBottomFace(facesToDraw);
-        glEnd();
-
-        glPopMatrix();
+    public void generateMeshData(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
+        generateTopFace(position, facesToDraw, meshData);
+        generateBottomFace(position, facesToDraw, meshData);
+        generateBackFace(position, facesToDraw, meshData);
+        generateFrontFace(position, facesToDraw, meshData);
+        generateLeftFace(position, facesToDraw, meshData);
+        generateRightFace(position, facesToDraw, meshData);
     }
 
-    private void renderFrontFace(List<Faces> facesToDraw) {
-        if (facesToDraw.contains(Faces.FRONT)) {
-            face(new Vector3d(-0.5, -0.5, 0.5), new Vector3d(0.5, -0.5, 0.5), new Vector3d(-0.5, 0.5, 0.5), new Vector3d(0.5, 0.5, 0.5), textureUVRecord);
-        }
-    }
-
-    private void renderBackFace(List<Faces> facesToDraw) {
-        if (facesToDraw.contains(Faces.BACK)) {
-            face(new Vector3d(0.5, -0.5, -0.5), new Vector3d(-0.5, -0.5, -0.5), new Vector3d(0.5, 0.5, -0.5), new Vector3d(-0.5, 0.5, -0.5), textureUVRecord);
-        }
-    }
-
-    private void renderLeftFace(List<Faces> facesToDraw) {
-        if (facesToDraw.contains(Faces.LEFT)) {
-            face(new Vector3d(-0.5, -0.5, -0.5), new Vector3d(-0.5, -0.5, 0.5), new Vector3d(-0.5, 0.5, -0.5), new Vector3d(-0.5, 0.5, 0.5), textureUVRecord);
-        }
-    }
-
-    private void renderRightFace(List<Faces> facesToDraw) {
-        if (facesToDraw.contains(Faces.RIGHT)) {
-            face(new Vector3d(0.5, -0.5, 0.5), new Vector3d(0.5, -0.5, -0.5), new Vector3d(0.5, 0.5, 0.5), new Vector3d(0.5, 0.5, -0.5), textureUVRecord);
-        }
-    }
-
-    private void renderTopFace(List<Faces> facesToDraw) {
+    private void generateTopFace(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
         if (facesToDraw.contains(Faces.TOP)) {
-            face(new Vector3d(-0.5, 0.5, -0.5), new Vector3d(-0.5, 0.5, 0.5), new Vector3d(0.5, 0.5, -0.5), new Vector3d(0.5, 0.5, 0.5), textureUVRecord);
+            Vector3d topLeft = new Vector3d(position.x - 0.5, position.y + 0.5, position.z + 0.5);
+            Vector3d topRight = new Vector3d(position.x + 0.5, position.y + 0.5, position.z + 0.5);
+            Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y + 0.5, position.z - 0.5);
+            Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y + 0.5, position.z - 0.5);
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, 1, 0), meshData);
         }
     }
 
-    private void renderBottomFace(List<Faces> facesToDraw) {
+    private void generateBottomFace(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
         if (facesToDraw.contains(Faces.BOTTOM)) {
-            face(new Vector3d(-0.5, -0.5, -0.5), new Vector3d(0.5, -0.5, -0.5), new Vector3d(-0.5, -0.5, 0.5), new Vector3d(0.5, -0.5, 0.5), textureUVRecord);
+            Vector3d topLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z - 0.5);
+            Vector3d topRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z - 0.5);
+            Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z + 0.5);
+            Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z + 0.5);
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, -1, 0), meshData);
         }
     }
 
-    private void face(Vector3d topLeftPoint, Vector3d topRightPoint, Vector3d bottomLeftPoint,
-                      Vector3d bottomRightPoint, TextureUVRecord textureUVRecord) {
+    private void generateBackFace(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
+        if (facesToDraw.contains(Faces.BACK)) {
+            Vector3d topLeft = new Vector3d(position.x - 0.5, position.y + 0.5, position.z - 0.5);
+            Vector3d topRight = new Vector3d(position.x + 0.5, position.y + 0.5, position.z - 0.5);
+            Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z - 0.5);
+            Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z - 0.5);
 
-        vertex(bottomRightPoint, textureUVRecord.getBottomRight());
-        vertex(bottomLeftPoint, textureUVRecord.getBottomLeft());
-        vertex(topLeftPoint, textureUVRecord.getTopLeft());
-
-        vertex(topRightPoint, textureUVRecord.getTopRight());
-        vertex(bottomRightPoint, textureUVRecord.getBottomRight());
-        vertex(topLeftPoint, textureUVRecord.getTopLeft());
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, 0, -1), meshData);
+        }
     }
 
-    private void vertex(Vector3d point, Vector2d uv) {
-        glTexCoord2d(uv.x, uv.y);
-        glVertex3d(point.x, point.y, point.z);
+    private void generateFrontFace(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
+        if (facesToDraw.contains(Faces.FRONT)) {
+            Vector3d topLeft = new Vector3d(position.x + 0.5, position.y + 0.5, position.z + 0.5);
+            Vector3d topRight = new Vector3d(position.x - 0.5, position.y + 0.5, position.z + 0.5);
+            Vector3d bottomLeft = new Vector3d(position.x + 0.5, position.y - 0.5, position.z + 0.5);
+            Vector3d bottomRight = new Vector3d(position.x - 0.5, position.y - 0.5, position.z + 0.5);
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, 0, 1), meshData);
+        }
+    }
+
+    private void generateLeftFace(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
+        if (facesToDraw.contains(Faces.LEFT)) {
+            Vector3d topLeft = new Vector3d(position.x - 0.5, position.y + 0.5, position.z + 0.5);
+            Vector3d topRight = new Vector3d(position.x - 0.5, position.y + 0.5, position.z - 0.5);
+            Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z + 0.5);
+            Vector3d bottomRight = new Vector3d(position.x - 0.5, position.y - 0.5, position.z - 0.5);
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(-1, 0, 0), meshData);
+        }
+    }
+
+    private void generateRightFace(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
+        if (facesToDraw.contains(Faces.RIGHT)) {
+            Vector3d topLeft = new Vector3d(position.x + 0.5, position.y + 0.5, position.z - 0.5);
+            Vector3d topRight = new Vector3d(position.x + 0.5, position.y + 0.5, position.z + 0.5);
+            Vector3d bottomLeft = new Vector3d(position.x + 0.5, position.y - 0.5, position.z - 0.5);
+            Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z + 0.5);
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(1, 0, 0), meshData);
+        }
+    }
+
+    private void generateFaceData(Vector3d topLeftPoint, Vector3d topRightPoint, Vector3d bottomLeftPoint,
+                                  Vector3d bottomRightPoint, TextureUVRecord uvRecord, Vector3d normal, MeshData meshData) {
+        meshData.getVertices().addAll(Arrays.asList(
+                topLeftPoint.x, topLeftPoint.y, topLeftPoint.z, uvRecord.getTopLeft().x, uvRecord.getTopLeft().y, normal.x, normal.y, normal.z,
+                topRightPoint.x, topRightPoint.y, topRightPoint.z, uvRecord.getTopRight().x, uvRecord.getTopRight().y, normal.x, normal.y, normal.z,
+                bottomLeftPoint.x, bottomLeftPoint.y, bottomLeftPoint.z, uvRecord.getBottomLeft().x, uvRecord.getBottomLeft().y, normal.x, normal.y, normal.z,
+                bottomRightPoint.x, bottomRightPoint.y, bottomRightPoint.z, uvRecord.getBottomRight().x, uvRecord.getBottomRight().y, normal.x, normal.y, normal.z
+        ));
+
+        int baseIndex = (meshData.getVertices().size() / MeshData.STRIDE_FLOATS) - 4;
+
+        meshData.getIndices().addAll(List.of(
+                baseIndex + 3, baseIndex + 2, baseIndex,
+                baseIndex + 1, baseIndex + 3, baseIndex
+        ));
     }
 }
