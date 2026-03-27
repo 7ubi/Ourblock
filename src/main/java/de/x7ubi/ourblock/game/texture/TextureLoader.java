@@ -25,6 +25,8 @@ public class TextureLoader {
 
         textureUVRecords.put("dirt", new TextureUVRecord(new Vector2d(0.0, 0.5)));
         textureUVRecords.put("cobble", new TextureUVRecord(new Vector2d(0.5, 0.5)));
+        textureUVRecords.put("grass_side", new TextureUVRecord(new Vector2d(0.5, 0.0)));
+        textureUVRecords.put("grass_top", new TextureUVRecord(new Vector2d(0.0, 0.0)));
     }
 
     public TextureUVRecord getTextureUV(String name) {

@@ -52,7 +52,9 @@ public class Chunk {
                 for (int y = 0; y < MAX_CHUNK_HEIGHT; y++) {
                     int index = getBlockIndex(x, y, z);
 
-                    if (y < dirtHeight) {
+                    if (y == dirtHeight) {
+                        blocks[index] = 3;
+                    } else if (y < dirtHeight) {
                         blocks[index] = y < dirtHeight - 4 ? (byte) 2 : 1;
 
                     } else {
@@ -136,11 +138,6 @@ public class Chunk {
 
     private int getBlockIndex(int x, int y, int z) {
         return (z * CHUNK_SIZE * MAX_CHUNK_HEIGHT) + (y * CHUNK_SIZE) + x;
-    }
-
-    public void clearMeshData() {
-        meshData.getVertices().clear();
-        meshData.getIndices().clear();
     }
 
     public void cleanup() {

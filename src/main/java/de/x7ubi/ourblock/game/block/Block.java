@@ -10,8 +10,18 @@ public abstract class Block {
 
     protected TextureUVRecord textureUVRecord;
 
+    protected TextureUVRecord topUVRecord = null;
+    protected TextureUVRecord sideUVRecord = null;
+    protected TextureUVRecord bottomUVRecord = null;
+
     public Block(TextureUVRecord textureUVRecord) {
         this.textureUVRecord = textureUVRecord;
+    }
+
+    public Block(TextureUVRecord topUVRecord, TextureUVRecord sideUVRecord, TextureUVRecord bottomUVRecord) {
+        this.topUVRecord = topUVRecord;
+        this.sideUVRecord = sideUVRecord;
+        this.bottomUVRecord = bottomUVRecord;
     }
 
     public void generateMeshData(Vector3d position, List<Faces> facesToDraw, MeshData meshData) {
@@ -30,7 +40,9 @@ public abstract class Block {
             Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y + 0.5, position.z - 0.5);
             Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y + 0.5, position.z - 0.5);
 
-            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, 1, 0), meshData);
+            TextureUVRecord uvRecord = topUVRecord != null ? topUVRecord : textureUVRecord;
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, uvRecord, new Vector3d(0, 1, 0), meshData);
         }
     }
 
@@ -41,7 +53,9 @@ public abstract class Block {
             Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z + 0.5);
             Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z + 0.5);
 
-            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, -1, 0), meshData);
+            TextureUVRecord uvRecord = bottomUVRecord != null ? bottomUVRecord : textureUVRecord;
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, uvRecord, new Vector3d(0, -1, 0), meshData);
         }
     }
 
@@ -52,7 +66,9 @@ public abstract class Block {
             Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z - 0.5);
             Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z - 0.5);
 
-            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, 0, -1), meshData);
+            TextureUVRecord uvRecord = sideUVRecord != null ? sideUVRecord : textureUVRecord;
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, uvRecord, new Vector3d(0, 0, -1), meshData);
         }
     }
 
@@ -63,7 +79,9 @@ public abstract class Block {
             Vector3d bottomLeft = new Vector3d(position.x + 0.5, position.y - 0.5, position.z + 0.5);
             Vector3d bottomRight = new Vector3d(position.x - 0.5, position.y - 0.5, position.z + 0.5);
 
-            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(0, 0, 1), meshData);
+            TextureUVRecord uvRecord = sideUVRecord != null ? sideUVRecord : textureUVRecord;
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, uvRecord, new Vector3d(0, 0, 1), meshData);
         }
     }
 
@@ -74,7 +92,9 @@ public abstract class Block {
             Vector3d bottomLeft = new Vector3d(position.x - 0.5, position.y - 0.5, position.z + 0.5);
             Vector3d bottomRight = new Vector3d(position.x - 0.5, position.y - 0.5, position.z - 0.5);
 
-            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(-1, 0, 0), meshData);
+            TextureUVRecord uvRecord = sideUVRecord != null ? sideUVRecord : textureUVRecord;
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, uvRecord, new Vector3d(-1, 0, 0), meshData);
         }
     }
 
@@ -85,7 +105,9 @@ public abstract class Block {
             Vector3d bottomLeft = new Vector3d(position.x + 0.5, position.y - 0.5, position.z - 0.5);
             Vector3d bottomRight = new Vector3d(position.x + 0.5, position.y - 0.5, position.z + 0.5);
 
-            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, textureUVRecord, new Vector3d(1, 0, 0), meshData);
+            TextureUVRecord uvRecord = sideUVRecord != null ? sideUVRecord : textureUVRecord;
+
+            generateFaceData(topLeft, topRight, bottomLeft, bottomRight, uvRecord, new Vector3d(1, 0, 0), meshData);
         }
     }
 

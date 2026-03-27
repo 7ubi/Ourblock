@@ -9,6 +9,7 @@ public class BlockDictionary {
     static {
         blockMap.put((byte) 1, new DirtBlock());
         blockMap.put((byte) 2, new CobbleStoneBlock());
+        blockMap.put((byte) 3, new GrassBlock());
     }
 
     public static Block getBlockById(byte id) {
