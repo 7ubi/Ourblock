@@ -45,7 +45,7 @@ public class Runner {
             double deltaTime = now - lastTime;
             lastTime = now;
 
-            System.out.println("FPS: " + (1.0 / deltaTime));
+            //  System.out.println("FPS: " + (1.0 / deltaTime));
 
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

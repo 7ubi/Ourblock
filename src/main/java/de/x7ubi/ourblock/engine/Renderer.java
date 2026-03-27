@@ -12,6 +12,7 @@ public class Renderer {
 
     public void render(double deltaTime) {
         Controller.getInstance().update(deltaTime);
+        ChunkGeneration.getInstance().updateChunks();
         ChunkGeneration.getInstance().render();
     }
 

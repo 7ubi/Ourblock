@@ -22,7 +22,7 @@ public class Chunk {
 
     private static final int MIN_CHUNK_HEIGHT = 60;
 
-    private static final double frequency = 0.05;
+    private static final double frequency = 0.03;
 
     @Getter
     private final byte[] blocks = new byte[CHUNK_SIZE * CHUNK_SIZE * MAX_CHUNK_HEIGHT];
